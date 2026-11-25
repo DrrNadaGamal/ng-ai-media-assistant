@@ -21,4 +21,4 @@ Images are sent to Google when you use this plugin. Do not use it on images that
 - Tested against a mock, NOT the live Gemini API. The request shape follows the public generateContent documentation (x-goog-api-key header, inline_data base64), but a live test with a real key is still needed.
 - Gemini model names change and older ones are retired. The model is a setting (default `gemini-flash-latest`); set one your key can use.
 - Alt text quality depends on the model: review before approving, especially for medical or sensitive images.
-- Not tested with Elementor/Bricks or on a live host.
+- Activation checked beside real Elementor 4.4.2 (no errors). Not tested in the Elementor editor, with Bricks, or on a live host.
