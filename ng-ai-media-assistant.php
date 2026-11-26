@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 final class NGAMA {
 	const OPT = 'ngama_settings';
 	const META = '_ngama';
-	static function defaults() { return array( 'model' => 'gemini-flash-latest', 'lang' => 'auto', 'mode' => 'review', 'on_upload' => 1, 'key_enc' => '', 'context' => '' ); }
+	static function defaults() { return array( 'model' => 'gemini-flash-lite-latest', 'lang' => 'auto', 'mode' => 'review', 'on_upload' => 1, 'key_enc' => '', 'context' => '' ); }
 	static function s() { return wp_parse_args( get_option( self::OPT, array() ), self::defaults() ); }
 	static function enc( $p ) { $k = hash( 'sha256', wp_salt( 'auth' ), true ); $iv = random_bytes( 12 ); $tag = ''; $c = openssl_encrypt( $p, 'aes-256-gcm', $k, OPENSSL_RAW_DATA, $iv, $tag ); return base64_encode( $iv . $tag . $c ); }
 	static function dec( $b ) { if ( ! $b ) { return ''; } $r = base64_decode( $b ); $p = openssl_decrypt( substr( $r, 28 ), 'aes-256-gcm', hash( 'sha256', wp_salt( 'auth' ), true ), OPENSSL_RAW_DATA, substr( $r, 0, 12 ), substr( $r, 12, 16 ) ); return false === $p ? '' : $p; }
@@ -88,7 +88,7 @@ final class NGAMA {
 	static function back( $m ) { wp_safe_redirect( add_query_arg( 'msg', rawurlencode( $m ), admin_url( 'upload.php?page=ngama' ) ) ); exit; }
 	static function act_save() {
 		self::guard(); if ( ! current_user_can( 'manage_options' ) ) { wp_die( 'Forbidden', 403 ); } $in = wp_unslash( $_POST ); $s = self::s();
-		$n = array( 'model' => preg_replace( '/[^a-z0-9.\-]/i', '', $in['model'] ?? 'gemini-flash-latest' ), 'lang' => in_array( $in['lang'] ?? '', array( 'auto', 'ar', 'en', 'fr', 'de' ), true ) ? $in['lang'] : 'auto', 'mode' => 'auto' === ( $in['mode'] ?? '' ) ? 'auto' : 'review', 'on_upload' => empty( $in['on_upload'] ) ? 0 : 1, 'context' => sanitize_text_field( $in['context'] ?? '' ), 'key_enc' => $s['key_enc'] );
+		$n = array( 'model' => preg_replace( '/[^a-z0-9.\-]/i', '', $in['model'] ?? 'gemini-flash-lite-latest' ), 'lang' => in_array( $in['lang'] ?? '', array( 'auto', 'ar', 'en', 'fr', 'de' ), true ) ? $in['lang'] : 'auto', 'mode' => 'auto' === ( $in['mode'] ?? '' ) ? 'auto' : 'review', 'on_upload' => empty( $in['on_upload'] ) ? 0 : 1, 'context' => sanitize_text_field( $in['context'] ?? '' ), 'key_enc' => $s['key_enc'] );
 		if ( ! empty( $in['key'] ) ) { $n['key_enc'] = self::enc( trim( $in['key'] ) ); }
 		update_option( self::OPT, $n, false ); self::back( 'Saved' );
 	}
@@ -100,7 +100,7 @@ final class NGAMA {
 		if ( ! current_user_can( 'upload_files' ) ) { return; }
 		$s = self::s(); $act = admin_url( 'admin-post.php' ); $rtl = is_rtl() ? ' dir="rtl"' : '';
 		echo '<div class="wrap"' . $rtl . '><h1>NG ' . esc_html__( 'AI Media Assistant', 'ng-ama' ) . '</h1>';
-		if ( isset( $_GET['msg'] ) ) { echo '<div class="notice notice-info"><p>' . esc_html( wp_unslash( $_GET['msg'] ) ) . '</p></div>'; }
+		echo '<div class="notice notice-warning inline"><p>' . esc_html__( 'AI-written text in Arabic, French and German can contain wording mistakes. Read it before you approve it.', 'ng-ama' ) . ' <span dir="rtl">النص العربي المكتوب بالذكاء الاصطناعي قد يحتوي على أخطاء في الصياغة. اقرأه قبل الموافقة عليه.</span></p></div>'; if ( isset( $_GET['msg'] ) ) { echo '<div class="notice notice-info"><p>' . esc_html( wp_unslash( $_GET['msg'] ) ) . '</p></div>'; }
 		if ( current_user_can( 'manage_options' ) ) {
 			echo '<form method="post" action="' . esc_url( $act ) . '">'; wp_nonce_field( 'ngama' ); echo '<input type="hidden" name="action" value="ngama_save"><table class="form-table">';
 			printf( '<tr><th>Gemini model</th><td><input name="model" class="regular-text" value="%s"><p class="description">Model names change; use one your API key can access.</p></td></tr>', esc_attr( $s['model'] ) );

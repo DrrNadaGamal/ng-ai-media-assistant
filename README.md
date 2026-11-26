@@ -18,7 +18,8 @@ Images are sent to Google when you use this plugin. Do not use it on images that
 `tests/run-tests.php`: 30 checks, 0 failed (WordPress + PHP 8.2, Playground) against a local mock of the Gemini endpoint: key handling, request format (key header, base64 image, language, context), review vs auto mode, no overwrite of existing alt, on-upload toggle, wrong key, garbage and code-fenced answers, HTML stripping, non-images, capability checks, 4-language page, escaping.
 
 ## Honest limits
-- Tested against a mock, NOT the live Gemini API. The request shape follows the public generateContent documentation (x-goog-api-key header, inline_data base64), but a live test with a real key is still needed.
-- Gemini model names change and older ones are retired. The model is a setting (default `gemini-flash-latest`); set one your key can use.
+- Live test with a real Gemini key (default model `gemini-flash-lite-latest`): alt text and description generated, nothing applied until approved, Arabic output returned. NOT yet tested on a live host with real media.
+- Gemini model names change and older ones are retired. The model is a setting (default `gemini-flash-lite-latest`); set one your key can use.
+- Arabic, French and German AI text can contain wording mistakes (the live test returned a wrong Arabic word for "green" in two runs). Read it before you approve it. The settings page shows a reminder.
 - Alt text quality depends on the model: review before approving, especially for medical or sensitive images.
 - Activation checked beside real Elementor 4.4.2 (no errors). Not tested in the Elementor editor, with Bricks, or on a live host.
